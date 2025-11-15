@@ -47,15 +47,15 @@ function SecondStep() {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center mt-3 bg-black">
-            <h1 className="text-xl font-semibold text-white">
+        <div className="flex flex-col items-center justify-center mt-10 bg-black">
+            <h1 className="text-2xl font-semibold text-white">
                 2. Analyze model training
             </h1>
 
-            <button className="text-xl border text-white border-white p-3 mt-3 cursor-pointer" onClick={analyzeTraining}>Model training</button>
-            {(lime && data) ? (
+            <button className="text-md border text-white border-white p-3 mt-3 cursor-pointer hover:text-black hover:font-semibold hover:scale-105 hover:bg-white transform duration-150" onClick={analyzeTraining}>Analyze</button>
+            {(lime && data) && (
                 <LimeBarChart featureNames={data.feature_names} meanContrib={data.mean_contrib} />
-            ) : <p className="text-white">waiting for data...</p>}
+            )}
 
             {data &&
                 <div className='flex flex-col items-center justify-center'>
@@ -63,7 +63,7 @@ function SecondStep() {
                 </div>
             }
             {gptResponse && (
-                <div className="mt-6 w-full max-w-2xl bg-gray-400 rounded-xl p-5 space-y-4">
+                <div className="mt-10 w-full max-w-2xl bg-gray-400 mb-10 rounded-xl p-5 space-y-4">
                     {gptResponse
                         .split('\n')
                         .map((line, i) => (
