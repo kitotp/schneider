@@ -22,7 +22,7 @@ export default function LimeBarChart({ featureNames, meanContrib }: LimeBarChart
     }));
 
     return (
-        <div style={{ width: "600px", height: 450 }}>
+        <div style={{ width: "700px", height: 450 }}>
             <ResponsiveContainer>
                 <BarChart data={data} margin={{ top: 20, right: 20, left: 20, bottom: 80 }}>
 
