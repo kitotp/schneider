@@ -7,8 +7,15 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score
 from lime.lime_tabular import LimeTabularExplainer
 import numpy as np
+import os
+from dotenv import load_dotenv
+from openai import OpenAI
+
+load_dotenv()
 
 app = FastAPI()
+
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 app.add_middleware(
     CORSMiddleware,
@@ -117,6 +124,32 @@ async def analyze_probabilities():
     }
 
 
-@app.post('/gpt-analyze')
-def analyze_gpt():
-    
+@app.post("/gpt-analyze")
+def analyze_gpt(payload: LimeResult):
+    prompt = f"""
+    You are an ML model explainer. Analyze feature importance for a binary classifier.
+
+    Features and their mean contributions:
+    {dict(zip(payload.feature_names, payload.mean_contrib))}
+
+    Task: Produce both a structured summary AND a human-friendly explanation.
+
+    Output format EXACTLY:
+
+    1. "Probability of class 1 is mainly influenced by: feature1 (value), feature2 (value), feature3 (value)"
+    2. "Probability of class 0 is mainly influenced by: feature1 (value), feature2 (value), feature3 (value)"
+    3. A short human-friendly explanation (3–4 sentences) describing why these features matter and what their influence means for a non-technical person. No formulas, no statistics — only intuition.
+
+    Requirements:
+    - Identify 2–3 strongest positive contributors
+    - Identify 2–3 strongest negative contributors
+    - Use actual feature names only
+    - Be concise and clear
+    - No markdown, no lists, plain text only
+    """
+
+    completion = client.chat.completions.create(
+        model="gpt-4o-mini", messages=[{"role": "user", "content": prompt}]
+    )
+
+    return {"explanation": completion.choices[0].message.content}

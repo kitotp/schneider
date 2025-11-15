@@ -37,14 +37,14 @@ const FirstStep = () => {
 
 
     return (
-        <div className='flex flex-col items-center justify-center'>
-            <h1 className="text-xl font-semibold text-black">
+        <div className='flex flex-col items-center justify-center mt-30'>
+            <h1 className="text-2xl font-semibold text-white">
                 1. Download your normalized csv dataset
             </h1>
-            <input type="file" accept=".csv" onChange={handleFileChange} className="border p-3" />
+            <input type="file" accept=".csv" onChange={handleFileChange} className="mt-3 border p-3 border-white text-white" />
 
-            <button className="text-xl border border-black p-3 mt-3 cursor-pointer" onClick={handleUpload}>Analyze</button>
-            {accuracy && <p>Accuracy: {accuracy}</p>}
+            <button className="text-md hover:bg-white hover:text-black transform duration-300 hover:scale-105 border border-white text-white p-3 mt-3 cursor-pointer " onClick={handleUpload}>Analyze</button>
+            {accuracy && <p className='text-white'>Accuracy: {accuracy}</p>}
         </div>
     )
 }
