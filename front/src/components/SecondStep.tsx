@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import LimeBarChart from "./LimeBarChart";
 import TrainingWindow from "./TrainingWindow";
 
@@ -16,6 +16,17 @@ function SecondStep({ accuracy }: SecondStepProps) {
     const [analyzing, setAnalyzing] = useState(false);
     const [gptResponse, setGptResponse] = useState<string | null>(null);
     const [explaining, setExplaining] = useState(false);
+
+    const explanationRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        if (gptResponse && explanationRef.current) {
+            explanationRef.current.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+            });
+        }
+    }, [gptResponse]);
 
     const analyzeGraph = async () => {
         try {
@@ -92,9 +103,12 @@ function SecondStep({ accuracy }: SecondStepProps) {
             )}
 
             {gptResponse && (
-                <div className="mt-10 w-full max-w-2xl bg-gray-400 mb-10 rounded-xl p-5 space-y-4">
+                <div ref={explanationRef} className="mt-10 w-full max-w-2xl mb-10 rounded-2xl border border-gray-700 space-y-5 bg-zinc-900/80 p-6">
                     {gptResponse.split("\n").map((line, i) => (
-                        <p key={i} className={`text-lg ${i < 2 ? "font-semibold text-black" : "text-white"}`}>
+                        <p key={i}
+                            className={`text-sm md:text-base leading-relaxed ${i < 2
+                                ? "font-semibold text-gray-100"
+                                : "text-gray-300"}`}>
                             {line.trim()}
                         </p>
                     ))}

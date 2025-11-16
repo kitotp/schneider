@@ -84,7 +84,6 @@ async def analyze_probabilities():
     X_train = X_train_global
     X_test = X_test_global
     feature_names = feature_names_global
-    N = 10
     num_features = len(feature_names)
     class_names = ["class_0", "class_1"]
 
@@ -99,7 +98,12 @@ async def analyze_probabilities():
     sum_contrib = np.zeros(num_features)
     count_contrib = np.zeros(num_features)
 
-    for i in range(N):
+    N = 100
+    total_samples = X_test.shape[0]
+    sample_size = min(N, total_samples)
+    idxs = np.random.choice(total_samples, size=sample_size, replace=False)
+
+    for i in idxs:
         exp = explainer.explain_instance(
             X_test[i],
             knn_model.predict_proba,
