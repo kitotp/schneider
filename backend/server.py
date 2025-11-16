@@ -126,18 +126,24 @@ async def analyze_probabilities():
 
 @app.post("/gpt-analyze")
 def analyze_gpt(payload: LimeResult):
+
+    feature_contribs = {
+        name: round(value, 2)
+        for name, value in zip(payload.feature_names, payload.mean_contrib)
+    }
+
     prompt = f"""
     You are an ML model explainer. Analyze feature importance for a binary classifier.
 
-    Features and their mean contributions:
-    {dict(zip(payload.feature_names, payload.mean_contrib))}
+    Features and their mean contributions (positive = pushes to class 1, negative = pushes to class 0):
+    {feature_contribs}
 
     Task: Produce both a structured summary AND a human-friendly explanation.
 
     Output format EXACTLY:
 
-    1. "Probability of class 1 is mainly influenced by: feature1 (value), feature2 (value), feature3 (value)"
-    2. "Probability of class 0 is mainly influenced by: feature1 (value), feature2 (value), feature3 (value)"
+    1. Probability of class 1 is mainly influenced by: feature1 (value), feature2 (value), feature3 (value)
+    2. Probability of class 0 is mainly influenced by: feature1 (value), feature2 (value), feature3 (value)
     3. A short human-friendly explanation (3–4 sentences) describing why these features matter and what their influence means for a non-technical person. No formulas, no statistics — only intuition.
 
     Requirements:

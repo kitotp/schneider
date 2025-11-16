@@ -1,62 +1,84 @@
-import React, { useState } from 'react'
+import React, { useState } from "react";
 
 type FirstStepProps = {
-    setIsUploaded: (v: boolean) => void
-}
+    setIsUploaded: (v: boolean) => void;
+    setAccuracy: (v: number) => void;
+};
 
-const FirstStep = ({ setIsUploaded }: { setIsUploaded: (v: boolean) => void }) => {
-
+const FirstStep = ({ setIsUploaded, setAccuracy }: FirstStepProps) => {
     const [file, setFile] = useState<File | null>(null);
-    const [accuracy, setAccuracy] = useState<number>()
+    const [training, setTraining] = useState(false);
 
-    const handleFileChange = (e: any) => {
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const selected = e.target.files?.[0] || null;
-        setFile(selected)
-    }
+        setFile(selected);
+    };
 
     const handleUpload = async () => {
-        if (!file) {
-            return;
-        }
+        if (!file || training) return;
 
         try {
             const formData = new FormData();
-            formData.append("file", file)
+            formData.append("file", file);
+
+            setTraining(true);
 
             const res = await fetch("http://localhost:8000/analyze-dataset", {
                 method: "POST",
-                body: formData
-            })
+                body: formData,
+            });
 
             if (!res.ok) {
-                throw new Error("error while analyzing dataset")
+                throw new Error("error while analyzing dataset");
             }
 
-            const data = await res.json()
-            setAccuracy(data.accuracy)
+            const data = await res.json();
 
+            setAccuracy(data.accuracy);
             setIsUploaded(true);
-        } catch (err: any) {
-            throw new Error("error on handle upload.")
+        } catch (err) {
+            console.error("error on handle upload.", err);
+        } finally {
+            setTraining(false);
         }
-    }
-
+    };
 
     return (
-        <div className='flex flex-col items-center justify-center mt-30'>
+        <div className="flex flex-col items-center justify-center mt-20">
             <h1 className="text-2xl font-semibold text-white">
-                1. Download your normalized csv dataset
+                1. Download your normalized csv dataset and train the model
             </h1>
 
-            <label htmlFor="file-upload" className="mt-3 border px-5 py-3 border-white text-white w-[400px] cursor-pointer  hover:bg-white hover:text-black hover:font-semibold transform hover:scale-105 duration-300 ">
-                Choose CSV File
+            <label
+                htmlFor="file-upload"
+                className="mt-3 border px-5 py-3 border-white text-white w-[400px] cursor-pointer  hover:bg-white hover:text-black hover:font-semibold transform hover:scale-105 duration-300 "
+            >
+                {file ? (
+                    <span className="font-medium">You have chosen {file.name}</span>
+                ) : (
+                    <span>Choose CSV File</span>
+                )}
             </label>
-            <input id='file-upload' type="file" accept=".csv" onChange={handleFileChange} className="hidden" />
+            <input
+                id="file-upload"
+                type="file"
+                accept=".csv"
+                onChange={handleFileChange}
+                className="hidden"
+            />
 
-            <button className="text-md hover:bg-white hover:text-black hover:font-semibold transform duration-300 hover:scale-105 border border-white text-white p-3 mt-3 cursor-pointer " onClick={handleUpload}>Analyze</button>
-            {accuracy && <p className='text-white font-semibold mt-2'>Accuracy: {accuracy}</p>}
+            <button
+                disabled={training}
+                className={`text-md transform duration-300 border border-white text-white p-3 mt-3 ${training
+                        ? "opacity-50 cursor-not-allowed"
+                        : "cursor-pointer hover:bg-white hover:text-black hover:font-semibold hover:scale-105"
+                    }`}
+                onClick={handleUpload}
+            >
+                {training ? "Training..." : "Train kNN"}
+            </button>
         </div>
-    )
-}
+    );
+};
 
-export default FirstStep
+export default FirstStep;
